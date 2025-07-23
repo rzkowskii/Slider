@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Slide Deck Builder</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .bg-gray-850 {
+            background-color: #1f2937;
+        }
+        
+        .shape-palette {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .shape-item {
+            transition: all 0.2s ease;
+        }
+        
+        .shape-item:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useCallback } = React;
+        const { createRoot } = ReactDOM;
+
+        // Professional Shape Components
+        const ShapeComponents = {
+          // Basic Shapes
+          rectangle: ({ size = 100, color = '#3B82F6' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <rect x="10" y="20" width="80" height="60" fill={color} stroke={color} strokeWidth="2" rx="2" />
+            </svg>
+          ),
+          
+          circle: ({ size = 100, color = '#10B981' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="35" fill={color} stroke={color} strokeWidth="2" />
+            </svg>
+          ),
+          
+          triangle: ({ size = 100, color = '#F59E0B' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <polygon points="50,15 85,75 15,75" fill={color} stroke={color} strokeWidth="2" />
+            </svg>
+          ),
+          
+          diamond: ({ size = 100, color = '#EF4444' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <polygon points="50,10 90,50 50,90 10,50" fill={color} stroke={color} strokeWidth="2" />
+            </svg>
+          ),
+          
+          hexagon: ({ size = 100, color = '#8B5CF6' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <polygon points="30,20 70,20 85,50 70,80 30,80 15,50" fill={color} stroke={color} strokeWidth="2" />
+            </svg>
+          ),
+          
+          star: ({ size = 100, color = '#F59E0B' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <polygon points="50,15 61,35 83,35 68,51 73,72 50,60 27,72 32,51 17,35 39,35" fill={color} stroke={color} strokeWidth="2" />
+            </svg>
+          ),
+          
+          // Flowchart Shapes
+          process: ({ size = 100, color = '#3B82F6' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <rect x="10" y="30" width="80" height="40" fill={color} stroke={color} strokeWidth="2" rx="2" />
+              <text x="50" y="55" textAnchor="middle" fill="white" fontSize="14">Process</text>
+            </svg>
+          ),
+          
+          decision: ({ size = 100, color = '#F59E0B' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <polygon points="50,10 90,50 50,90 10,50" fill={color} stroke={color} strokeWidth="2" />
+              <text x="50" y="55" textAnchor="middle" fill="white" fontSize="12">Decision</text>
+            </svg>
+          ),
+          
+          terminal: ({ size = 100, color = '#10B981' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <rect x="10" y="30" width="80" height="40" fill={color} stroke={color} strokeWidth="2" rx="20" />
+              <text x="50" y="55" textAnchor="middle" fill="white" fontSize="12">Start/End</text>
+            </svg>
+          ),
+          
+          data: ({ size = 100, color = '#8B5CF6' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <path d="M 20 30 L 80 30 L 90 70 L 30 70 Z" fill={color} stroke={color} strokeWidth="2" />
+              <text x="55" y="55" textAnchor="middle" fill="white" fontSize="14">Data</text>
+            </svg>
+          ),
+          
+          // Network Shapes
+          server: ({ size = 100, color = '#374151' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <rect x="20" y="20" width="60" height="15" fill={color} stroke="#111827" strokeWidth="2" rx="2" />
+              <rect x="20" y="40" width="60" height="15" fill={color} stroke="#111827" strokeWidth="2" rx="2" />
+              <rect x="20" y="60" width="60" height="15" fill={color} stroke="#111827" strokeWidth="2" rx="2" />
+              <circle cx="70" cy="27.5" r="3" fill="#10B981" />
+              <circle cx="70" cy="47.5" r="3" fill="#10B981" />
+              <circle cx="70" cy="67.5" r="3" fill="#10B981" />
+            </svg>
+          ),
+          
+          database: ({ size = 100, color = '#3B82F6' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <ellipse cx="50" cy="25" rx="25" ry="10" fill={color} stroke="#1E40AF" strokeWidth="2" />
+              <path d="M 25 25 L 25 70 C 25 76 38 80 50 80 C 62 80 75 76 75 70 L 75 25" fill={color} stroke="#1E40AF" strokeWidth="2" />
+              <ellipse cx="50" cy="70" rx="25" ry="10" fill={color} stroke="#1E40AF" strokeWidth="2" />
+            </svg>
+          ),
+          
+          cloud: ({ size = 100, color = '#60A5FA' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <path d="M 25 60 C 15 60 10 50 15 45 C 15 35 25 30 35 35 C 40 25 55 20 65 30 C 75 25 85 35 80 45 C 85 50 80 60 70 60 Z" fill={color} stroke="#2563EB" strokeWidth="2" />
+            </svg>
+          ),
+          
+          firewall: ({ size = 100, color = '#EF4444' }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100">
+              <rect x="20" y="25" width="60" height="50" fill={color} stroke="#DC2626" strokeWidth="2" />
+              <rect x="25" y="30" width="10" height="8" fill="#DC2626" />
+              <rect x="37" y="30" width="10" height="8" fill="#DC2626" />
+              <rect x="49" y="30" width="10" height="8" fill="#DC2626" />
+              <rect x="61" y="30" width="10" height="8" fill="#DC2626" />
+              <rect x="30" y="40" width="10" height="8" fill="#DC2626" />
+              <rect x="42" y="40" width="10" height="8" fill="#DC2626" />
+              <rect x="54" y="40" width="10" height="8" fill="#DC2626" />
+            </svg>
+          )
+        };
+
+        // Shape Categories
+        const shapeCategories = {
+          basic: {
+            name: 'Basic',
+            shapes: [
+              { id: 'rectangle', name: 'Rectangle', component: 'rectangle' },
+              { id: 'circle', name: 'Circle', component: 'circle' },
+              { id: 'triangle', name: 'Triangle', component: 'triangle' },
+              { id: 'diamond', name: 'Diamond', component: 'diamond' },
+              { id: 'hexagon', name: 'Hexagon', component: 'hexagon' },
+              { id: 'star', name: 'Star', component: 'star' }
+            ]
+          },
+          flowchart: {
+            name: 'Flowchart',
+            shapes: [
+              { id: 'process', name: 'Process', component: 'process' },
+              { id: 'decision', name: 'Decision', component: 'decision' },
+              { id: 'terminal', name: 'Terminal', component: 'terminal' },
+              { id: 'data', name: 'Data', component: 'data' }
+            ]
+          },
+          network: {
+            name: 'Network',
+            shapes: [
+              { id: 'server', name: 'Server', component: 'server' },
+              { id: 'database', name: 'Database', component: 'database' },
+              { id: 'cloud', name: 'Cloud', component: 'cloud' },
+              { id: 'firewall', name: 'Firewall', component: 'firewall' }
+            ]
+          }
+        };
+
+        // Undo/Redo functionality
+        const useHistory = () => {
+          const [history, setHistory] = useState([]);
+          const [currentIndex, setCurrentIndex] = useState(-1);
+          
+          const pushState = useCallback((state) => {
+            setHistory(prev => [...prev.slice(0, currentIndex + 1), JSON.parse(JSON.stringify(state))]);
+            setCurrentIndex(prev => prev + 1);
+          }, [currentIndex]);
+          
+          const undo = useCallback(() => {
+            if (currentIndex > 0) {
+              setCurrentIndex(prev => prev - 1);
+              return history[currentIndex - 1];
+            }
+          }, [currentIndex, history]);
+          
+          const redo = useCallback(() => {
+            if (currentIndex < history.length - 1) {
+              setCurrentIndex(prev => prev + 1);
+              return history[currentIndex + 1];
+            }
+          }, [currentIndex, history]);
+          
+          return { pushState, undo, redo, canUndo: currentIndex > 0, canRedo: currentIndex < history.length - 1 };
+        };
+
+        const ProfessionalSlideDeckBuilder = () => {
+          const [slides, setSlides] = useState([{ id: 1, elements: [], gridEnabled: true }]);
+          const [currentSlide, setCurrentSlide] = useState(0);
+          const [selectedElements, setSelectedElements] = useState(new Set());
+          const [tool, setTool] = useState('select');
+          const [isDragging, setIsDragging] = useState(false);
+          const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+          const [isPresenting, setIsPresenting] = useState(false);
+          const [showGrid, setShowGrid] = useState(true);
+          const [showShapeLibrary, setShowShapeLibrary] = useState(false);
+          const [selectedShapeCategory, setSelectedShapeCategory] = useState('basic');
+          const [clipboard, setClipboard] = useState(null);
+          const [zoom, setZoom] = useState(1);
+          const [alignmentGuides, setAlignmentGuides] = useState({ vertical: [], horizontal: [] });
+          const [showAlignmentGuides, setShowAlignmentGuides] = useState(true);
+          const [snapDistance] = useState(10);
+          const canvasRef = useRef(null);
+          const fileInputRef = useRef(null);
+          
+          // History management
+          const { pushState, undo, redo, canUndo, canRedo } = useHistory();
+
+          const themes = {
+            tech: {
+              bg: 'bg-gradient-to-br from-gray-900 to-gray-800',
+              text: 'text-white',
+              accent: 'from-blue-500 to-cyan-600',
+              code: 'bg-gray-950 text-green-400'
+            },
+            minimal: {
+              bg: 'bg-white',
+              text: 'text-gray-900',
+              accent: 'from-gray-600 to-gray-800',
+              code: 'bg-gray-100 text-gray-800'
+            },
+            dark: {
+              bg: 'bg-black',
+              text: 'text-green-400',
+              accent: 'from-green-600 to-green-800',
+              code: 'bg-gray-900 text-green-300'
+            },
+            gradient: {
+              bg: 'bg-gradient-to-br from-purple-600 via-pink-600 to-red-600',
+              text: 'text-white',
+              accent: 'from-purple-400 to-pink-400',
+              code: 'bg-purple-950 text-purple-300'
+            }
+          };
+
+          const [currentTheme, setCurrentTheme] = useState('tech');
+
+          // Professional Slide Templates
+          const slideTemplates = {
+            title: () => [
+              { 
+                id: Date.now() + Math.random(), 
+                type: 'text', 
+                content: 'Your Presentation Title', 
+                x: 100, y: 200, width: 600, height: 80, 
+                fontSize: 48, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 1, 
+                type: 'text', 
+                content: 'Subtitle or Author Name', 
+                x: 100, y: 300, width: 600, height: 40, 
+                fontSize: 24, textAlign: 'center', color: '#94A3B8' 
+              },
+              { 
+                id: Date.now() + Math.random() + 2, 
+                type: 'text', 
+                content: new Date().toLocaleDateString(), 
+                x: 100, y: 450, width: 600, height: 30, 
+                fontSize: 18, textAlign: 'center', color: '#9CA3AF' 
+              }
+            ],
+            content: () => [
+              { 
+                id: Date.now() + Math.random(), 
+                type: 'text', 
+                content: 'Slide Title', 
+                x: 50, y: 50, width: 700, height: 50, 
+                fontSize: 36, fontWeight: 'bold', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 1, 
+                type: 'shape', 
+                shapeType: 'rectangle', 
+                x: 50, y: 110, width: 200, height: 3, color: '#3B82F6' 
+              },
+              { 
+                id: Date.now() + Math.random() + 2, 
+                type: 'text', 
+                content: '• First key point goes here\n• Second important point\n• Third main idea\n• Fourth supporting detail', 
+                x: 50, y: 150, width: 700, height: 300, 
+                fontSize: 20, color: '#E5E7EB' 
+              }
+            ],
+            comparison: () => [
+              { 
+                id: Date.now() + Math.random(), 
+                type: 'text', 
+                content: 'Comparison', 
+                x: 50, y: 50, width: 700, height: 50, 
+                fontSize: 36, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 1, 
+                type: 'shape', 
+                shapeType: 'rectangle', 
+                x: 50, y: 150, width: 350, height: 350, color: '#1E40AF', opacity: 0.3 
+              },
+              { 
+                id: Date.now() + Math.random() + 2, 
+                type: 'shape', 
+                shapeType: 'rectangle', 
+                x: 420, y: 150, width: 350, height: 350, color: '#059669', opacity: 0.3 
+              },
+              { 
+                id: Date.now() + Math.random() + 3, 
+                type: 'text', 
+                content: 'Option A', 
+                x: 70, y: 170, width: 310, height: 40, 
+                fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#DBEAFE' 
+              },
+              { 
+                id: Date.now() + Math.random() + 4, 
+                type: 'text', 
+                content: 'Option B', 
+                x: 440, y: 170, width: 310, height: 40, 
+                fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#D1FAE5' 
+              }
+            ],
+            team: () => [
+              { 
+                id: Date.now() + Math.random(), 
+                type: 'text', 
+                content: 'Meet Our Team', 
+                x: 50, y: 50, width: 700, height: 50, 
+                fontSize: 36, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 1, 
+                type: 'shape', 
+                shapeType: 'circle', 
+                x: 125, y: 150, width: 100, height: 100, color: '#6B7280' 
+              },
+              { 
+                id: Date.now() + Math.random() + 2, 
+                type: 'shape', 
+                shapeType: 'circle', 
+                x: 350, y: 150, width: 100, height: 100, color: '#6B7280' 
+              },
+              { 
+                id: Date.now() + Math.random() + 3, 
+                type: 'shape', 
+                shapeType: 'circle', 
+                x: 575, y: 150, width: 100, height: 100, color: '#6B7280' 
+              },
+              { 
+                id: Date.now() + Math.random() + 4, 
+                type: 'text', 
+                content: 'Alice Johnson', 
+                x: 75, y: 270, width: 200, height: 30, 
+                fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 5, 
+                type: 'text', 
+                content: 'Bob Smith', 
+                x: 300, y: 270, width: 200, height: 30, 
+                fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 6, 
+                type: 'text', 
+                content: 'Carol Davis', 
+                x: 525, y: 270, width: 200, height: 30, 
+                fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 7, 
+                type: 'text', 
+                content: 'CEO', 
+                x: 75, y: 300, width: 200, height: 25, 
+                fontSize: 16, textAlign: 'center', color: '#9CA3AF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 8, 
+                type: 'text', 
+                content: 'CTO', 
+                x: 300, y: 300, width: 200, height: 25, 
+                fontSize: 16, textAlign: 'center', color: '#9CA3AF' 
+              },
+              { 
+                id: Date.now() + Math.random() + 9, 
+                type: 'text', 
+                content: 'CFO', 
+                x: 525, y: 300, width: 200, height: 25, 
+                fontSize: 16, textAlign: 'center', color: '#9CA3AF' 
+              }
+            ]
+          };
+
+          const addSlideFromTemplate = (templateName) => {
+            const templateElements = slideTemplates[templateName] ? slideTemplates[templateName]() : [];
+            const newSlide = { 
+              id: Date.now(), 
+              elements: templateElements,
+              gridEnabled: true 
+            };
+            const newSlides = [...slides, newSlide];
+            setSlides(newSlides);
+            setCurrentSlide(slides.length);
+            pushState(newSlides);
+          };
+
+          // Smart Alignment System
+          const calculateAlignmentPoints = (element) => {
+            return {
+              left: element.x,
+              centerX: element.x + element.width / 2,
+              right: element.x + element.width,
+              top: element.y,
+              centerY: element.y + element.height / 2,
+              bottom: element.y + element.height
+            };
+          };
+
+          const findSnapPoints = useCallback((movingElement, otherElements) => {
+            if (!showAlignmentGuides) return { vertical: [], horizontal: [] };
+            
+            const guides = { vertical: [], horizontal: [] };
+            const movingPoints = calculateAlignmentPoints(movingElement);
+            
+            otherElements.forEach(element => {
+              if (element.id === movingElement.id) return;
+              
+              const points = calculateAlignmentPoints(element);
+              
+              // Check vertical alignments
+              Object.entries({ left: points.left, centerX: points.centerX, right: points.right }).forEach(([key, value]) => {
+                Object.entries({ left: movingPoints.left, centerX: movingPoints.centerX, right: movingPoints.right }).forEach(([movingKey, movingValue]) => {
+                  if (Math.abs(value - movingValue) < snapDistance) {
+                    guides.vertical.push({
+                      position: value,
+                      from: Math.min(element.y, movingElement.y) - 20,
+                      to: Math.max(element.y + element.height, movingElement.y + movingElement.height) + 20,
+                      snap: value - movingValue,
+                      type: `${key}-${movingKey}`
+                    });
+                  }
+                });
+              });
+              
+              // Check horizontal alignments
+              Object.entries({ top: points.top, centerY: points.centerY, bottom: points.bottom }).forEach(([key, value]) => {
+                Object.entries({ top: movingPoints.top, centerY: movingPoints.centerY, bottom: movingPoints.bottom }).forEach(([movingKey, movingValue]) => {
+                  if (Math.abs(value - movingValue) < snapDistance) {
+                    guides.horizontal.push({
+                      position: value,
+                      from: Math.min(element.x, movingElement.x) - 20,
+                      to: Math.max(element.x + element.width, movingElement.x + movingElement.width) + 20,
+                      snap: value - movingValue,
+                      type: `${key}-${movingKey}`
+                    });
+                  }
+                });
+              });
+            });
+            
+            return guides;
+          }, [snapDistance, showAlignmentGuides]);
+
+          // Alignment Actions
+          const alignElements = (alignment) => {
+            if (selectedElements.size < 2) return;
+            
+            const selectedElementsList = slides[currentSlide].elements.filter(el => selectedElements.has(el.id));
+            const updatedSlides = [...slides];
+            
+            switch (alignment) {
+              case 'left':
+                const minX = Math.min(...selectedElementsList.map(el => el.x));
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].x = minX;
+                  }
+                });
+                break;
+              case 'center-h':
+                const avgX = selectedElementsList.reduce((sum, el) => sum + el.x + el.width / 2, 0) / selectedElementsList.length;
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].x = avgX - el.width / 2;
+                  }
+                });
+                break;
+              case 'right':
+                const maxRight = Math.max(...selectedElementsList.map(el => el.x + el.width));
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].x = maxRight - el.width;
+                  }
+                });
+                break;
+              case 'top':
+                const minY = Math.min(...selectedElementsList.map(el => el.y));
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].y = minY;
+                  }
+                });
+                break;
+              case 'center-v':
+                const avgY = selectedElementsList.reduce((sum, el) => sum + el.y + el.height / 2, 0) / selectedElementsList.length;
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].y = avgY - el.height / 2;
+                  }
+                });
+                break;
+              case 'bottom':
+                const maxBottom = Math.max(...selectedElementsList.map(el => el.y + el.height));
+                selectedElementsList.forEach(el => {
+                  const elementIndex = updatedSlides[currentSlide].elements.findIndex(e => e.id === el.id);
+                  if (elementIndex !== -1) {
+                    updatedSlides[currentSlide].elements[elementIndex].y = maxBottom - el.height;
+                  }
+                });
+                break;
+            }
+            
+            setSlides(updatedSlides);
+            pushState(updatedSlides);
+          };
+
+          const snapToGrid = (value) => {
+            if (!showGrid) return value;
+            const gridSize = 20;
+            return Math.round(value / gridSize) * gridSize;
+          };
+
+          // Save/Load functionality
+          const savePresentation = () => {
+            const data = {
+              slides,
+              theme: currentTheme,
+              version: '2.0'
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'presentation.json';
+            a.click();
+            URL.revokeObjectURL(url);
+          };
+          
+          const loadPresentation = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                try {
+                  const data = JSON.parse(e.target.result);
+                  setSlides(data.slides || [{ id: 1, elements: [], gridEnabled: true }]);
+                  setCurrentTheme(data.theme || 'tech');
+                  setCurrentSlide(0);
+                  setSelectedElements(new Set());
+                } catch (err) {
+                  alert('Invalid presentation file');
+                }
+              };
+              reader.readAsText(file);
+            }
+          };
+
+          // Copy/Paste functionality
+          const copySelectedElements = () => {
+            const elementsToCopy = slides[currentSlide].elements.filter(el => selectedElements.has(el.id));
+            setClipboard(elementsToCopy);
+          };
+          
+          const pasteElements = () => {
+            if (!clipboard) return;
+            
+            const updatedSlides = [...slides];
+            const pastedElements = clipboard.map(el => ({
+              ...el,
+              id: Date.now() + Math.random(),
+              x: el.x + 20,
+              y: el.y + 20
+            }));
+            
+            updatedSlides[currentSlide].elements.push(...pastedElements);
+            setSlides(updatedSlides);
+            pushState(updatedSlides);
+            setSelectedElements(new Set(pastedElements.map(el => el.id)));
+          };
+
+          const deleteSelectedElements = () => {
+            const updatedSlides = [...slides];
+            updatedSlides[currentSlide].elements = updatedSlides[currentSlide].elements.filter(
+              el => !selectedElements.has(el.id)
+            );
+            setSlides(updatedSlides);
+            pushState(updatedSlides);
+            setSelectedElements(new Set());
+          };
+
+          const addElement = (type, shapeComponent = null) => {
+            const baseElement = {
+              id: Date.now() + Math.random(),
+              type,
+              x: snapToGrid(200),
+              y: snapToGrid(200),
+              width: 120,
+              height: 80,
+              color: '#3B82F6',
+              fontSize: 24,
+              textAlign: 'left'
+            };
+
+            let newElement = { ...baseElement };
+
+            switch (type) {
+              case 'text':
+                newElement = {
+                  ...baseElement,
+                  width: 400,
+                  height: 50,
+                  content: 'Click to edit text',
+                  fontWeight: 'normal',
+                  color: '#FFFFFF'
+                };
+                break;
+              case 'code':
+                newElement = {
+                  ...baseElement,
+                  width: 600,
+                  height: 300,
+                  content: '// Write your code here\nconst example = "Hello World";',
+                  language: 'javascript'
+                };
+                break;
+              case 'shape':
+                newElement = {
+                  ...baseElement,
+                  shapeType: shapeComponent || 'rectangle',
+                  width: 100,
+                  height: 100
+                };
+                break;
+              case 'chart':
+                newElement = {
+                  ...baseElement,
+                  width: 400,
+                  height: 300,
+                  chartType: 'bar',
+                  data: [
+                    { name: 'A', value: 30 },
+                    { name: 'B', value: 50 },
+                    { name: 'C', value: 20 },
+                    { name: 'D', value: 40 }
+                  ]
+                };
+                break;
+            }
+
+            const updatedSlides = [...slides];
+            updatedSlides[currentSlide].elements.push(newElement);
+            setSlides(updatedSlides);
+            pushState(updatedSlides);
+            setSelectedElements(new Set([newElement.id]));
+          };
+
+          const updateElement = (elementId, updates) => {
+            const updatedSlides = [...slides];
+            const elementIndex = updatedSlides[currentSlide].elements.findIndex(el => el.id === elementId);
+            if (elementIndex !== -1) {
+              updatedSlides[currentSlide].elements[elementIndex] = {
+                ...updatedSlides[currentSlide].elements[elementIndex],
+                ...updates
+              };
+              setSlides(updatedSlides);
+            }
+          };
+
+          // Mouse handling for selection and dragging
+          const handleCanvasMouseDown = (e) => {
+            if (e.target === canvasRef.current) {
+              setSelectedElements(new Set());
+            }
+          };
+
+          const handleElementClick = (elementId, e) => {
+            e.stopPropagation();
+            
+            if (e.ctrlKey || e.metaKey) {
+              // Multi-select
+              const newSelection = new Set(selectedElements);
+              if (newSelection.has(elementId)) {
+                newSelection.delete(elementId);
+              } else {
+                newSelection.add(elementId);
+              }
+              setSelectedElements(newSelection);
+            } else {
+              setSelectedElements(new Set([elementId]));
+            }
+          };
+
+          const handleMouseDown = (e, elementId) => {
+            if (tool === 'select') {
+              handleElementClick(elementId, e);
+              setIsDragging(true);
+              const rect = e.currentTarget.getBoundingClientRect();
+              setDragOffset({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+              });
+            }
+          };
+
+          const handleMouseMove = (e) => {
+            if (isDragging && selectedElements.size > 0 && canvasRef.current) {
+              const rect = canvasRef.current.getBoundingClientRect();
+              const deltaX = snapToGrid(e.clientX - rect.left - dragOffset.x);
+              const deltaY = snapToGrid(e.clientY - rect.top - dragOffset.y);
+              
+              // Move all selected elements
+              selectedElements.forEach(elementId => {
+                const element = slides[currentSlide].elements.find(el => el.id === elementId);
+                if (element) {
+                  updateElement(elementId, { x: deltaX, y: deltaY });
+                }
+              });
+            }
+          };
+
+          const handleMouseUp = () => {
+            setIsDragging(false);
+          };
+
+          // Keyboard shortcuts
+          useEffect(() => {
+            const handleKeyDown = (e) => {
+              if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') return;
+              
+              // Ctrl/Cmd shortcuts
+              if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                  case 'z':
+                    e.preventDefault();
+                    if (e.shiftKey && canRedo) {
+                      const state = redo();
+                      if (state) setSlides(state);
+                    } else if (canUndo) {
+                      const state = undo();
+                      if (state) setSlides(state);
+                    }
+                    break;
+                  case 'c':
+                    e.preventDefault();
+                    copySelectedElements();
+                    break;
+                  case 'v':
+                    e.preventDefault();
+                    pasteElements();
+                    break;
+                  case 's':
+                    e.preventDefault();
+                    savePresentation();
+                    break;
+                  case 'd':
+                    e.preventDefault();
+                    if (selectedElements.size > 0) {
+                      copySelectedElements();
+                      pasteElements();
+                    }
+                    break;
+                }
+              } else {
+                switch (e.key) {
+                  case 'Delete':
+                  case 'Backspace':
+                    if (selectedElements.size > 0) {
+                      deleteSelectedElements();
+                    }
+                    break;
+                  case 'Escape':
+                    setSelectedElements(new Set());
+                    setTool('select');
+                    break;
+                }
+              }
+            };
+            
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+          }, [selectedElements, clipboard, canUndo, canRedo, undo, redo]);
+
+          useEffect(() => {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            return () => {
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+          }, [isDragging, selectedElements, dragOffset]);
+
+          const addSlide = () => {
+            const newSlide = { id: Date.now(), elements: [], gridEnabled: true };
+            setSlides([...slides, newSlide]);
+            setCurrentSlide(slides.length);
+            pushState([...slides, newSlide]);
+          };
+
+          const duplicateSlide = () => {
+            const slideToDuplicate = slides[currentSlide];
+            const newSlide = {
+              id: Date.now(),
+              elements: slideToDuplicate.elements.map(el => ({
+                ...el,
+                id: Date.now() + Math.random()
+              })),
+              gridEnabled: slideToDuplicate.gridEnabled
+            };
+            const newSlides = [...slides, newSlide];
+            setSlides(newSlides);
+            setCurrentSlide(slides.length);
+            pushState(newSlides);
+          };
+
+          const deleteSlide = () => {
+            if (slides.length > 1) {
+              const newSlides = slides.filter((_, index) => index !== currentSlide);
+              setSlides(newSlides);
+              setCurrentSlide(Math.max(0, currentSlide - 1));
+              pushState(newSlides);
+            }
+          };
+
+          const renderElement = (element) => {
+            const isSelected = selectedElements.has(element.id);
+            
+            switch (element.type) {
+              case 'text':
+                return (
+                  <div
+                    key={element.id}
+                    className={`absolute cursor-move p-2 ${isSelected ? 'ring-2 ring-blue-400' : ''}`}
+                    style={{
+                      left: element.x,
+                      top: element.y,
+                      width: element.width,
+                      fontSize: `${element.fontSize}px`,
+                      color: element.color || '#FFFFFF',
+                      fontWeight: element.fontWeight || 'normal',
+                      textAlign: element.textAlign || 'left'
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  >
+                    <div
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateElement(element.id, { content: e.target.innerText })}
+                      className="outline-none"
+                    >
+                      {element.content}
+                    </div>
+                  </div>
+                );
+              
+              case 'code':
+                return (
+                  <div
+                    key={element.id}
+                    className={`absolute cursor-move ${isSelected ? 'ring-2 ring-blue-400' : ''} ${themes[currentTheme].code} rounded-lg p-4 font-mono text-sm overflow-auto`}
+                    style={{
+                      left: element.x,
+                      top: element.y,
+                      width: element.width,
+                      height: element.height
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  >
+                    <div
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateElement(element.id, { content: e.target.innerText })}
+                      className="outline-none whitespace-pre"
+                    >
+                      {element.content}
+                    </div>
+                  </div>
+                );
+              
+              case 'shape':
+                const ShapeComponent = ShapeComponents[element.shapeType];
+                return (
+                  <div
+                    key={element.id}
+                    className={`absolute cursor-move ${isSelected ? 'ring-2 ring-blue-400' : ''}`}
+                    style={{
+                      left: element.x,
+                      top: element.y,
+                      width: element.width,
+                      height: element.height
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  >
+                    <ShapeComponent size="100%" color={element.color} />
+                  </div>
+                );
+              
+              case 'chart':
+                return (
+                  <div
+                    key={element.id}
+                    className={`absolute cursor-move bg-white/10 rounded-lg p-4 ${isSelected ? 'ring-2 ring-blue-400' : ''}`}
+                    style={{
+                      left: element.x,
+                      top: element.y,
+                      width: element.width,
+                      height: element.height
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  >
+                    <div className="w-full h-full flex items-end justify-around bg-gray-800 rounded">
+                      {element.data.map((item, index) => (
+                        <div key={index} className="flex flex-col items-center">
+                          <div 
+                            className="bg-blue-500 w-8 mb-2" 
+                            style={{ height: `${(item.value / Math.max(...element.data.map(d => d.value))) * 80}%` }}
+                          />
+                          <span className="text-xs text-gray-400">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              
+              default:
+                return null;
+            }
+          };
+
+          const PresentationView = () => (
+            <div className={`fixed inset-0 ${themes[currentTheme].bg} ${themes[currentTheme].text} flex items-center justify-center`}>
+              <button
+                onClick={() => setIsPresenting(false)}
+                className="absolute top-4 right-4 p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              >
+                ✕ Exit
+              </button>
+              
+              <button
+                onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+                className="absolute left-4 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                disabled={currentSlide === 0}
+              >
+                ← Prev
+              </button>
+              
+              <button
+                onClick={() => setCurrentSlide(Math.min(slides.length - 1, currentSlide + 1))}
+                className="absolute right-4 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                disabled={currentSlide === slides.length - 1}
+              >
+                Next →
+              </button>
+              
+              <div className="relative w-full max-w-6xl h-[700px]">
+                {slides[currentSlide].elements.map(renderElement)}
+              </div>
+              
+              <div className="absolute bottom-4 text-sm bg-black/50 px-4 py-2 rounded-full">
+                {currentSlide + 1} / {slides.length}
+              </div>
+            </div>
+          );
+
+          if (isPresenting) {
+            return <PresentationView />;
+          }
+
+          return (
+            <div className="flex h-screen bg-gray-900">
+              {/* Left Sidebar - Slides */}
+              <div className="w-64 bg-gray-800 shadow-lg flex flex-col">
+                <div className="p-4 border-b border-gray-600">
+                  <h2 className="text-lg font-semibold text-white">Slides</h2>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                  {slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`
+                        relative cursor-pointer rounded-lg p-2 transition-all
+                        ${index === currentSlide ? 'ring-2 ring-blue-500 bg-blue-50 bg-opacity-10' : 'hover:bg-gray-700'}
+                      `}
+                    >
+                      <div className="text-sm font-medium mb-1 text-white">Slide {index + 1}</div>
+                      <div className={`
+                        aspect-video rounded border ${themes[currentTheme].bg}
+                        transform scale-90 overflow-hidden
+                      `}>
+                        <div className="relative w-full h-full overflow-hidden scale-[0.2] origin-top-left">
+                          {slide.elements.map(el => (
+                            <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y }}>
+                              {el.type === 'text' && (
+                                <div style={{ fontSize: el.fontSize, color: el.color }}>{el.content}</div>
+                              )}
+                              {el.type === 'shape' && ShapeComponents[el.shapeType] && (
+                                React.createElement(ShapeComponents[el.shapeType], { 
+                                  size: Math.min(el.width, el.height), 
+                                  color: el.color 
+                                })
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="p-4 border-t border-gray-600 space-y-2">
+                  <button
+                    onClick={addSlide}
+                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
+                  >
+                    ➕ Add Slide
+                  </button>
+                  
+                  {/* Template Quick Access */}
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-400 font-medium">Templates:</div>
+                    <button
+                      onClick={() => addSlideFromTemplate('title')}
+                      className="w-full px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                    >
+                      🎯 Title Slide
+                    </button>
+                    <button
+                      onClick={() => addSlideFromTemplate('content')}
+                      className="w-full px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                    >
+                      📝 Content
+                    </button>
+                    <button
+                      onClick={() => addSlideFromTemplate('comparison')}
+                      className="w-full px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                    >
+                      ⚖️ Comparison
+                    </button>
+                    <button
+                      onClick={() => addSlideFromTemplate('team')}
+                      className="w-full px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                    >
+                      👥 Team
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={duplicateSlide}
+                      className="flex-1 px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      onClick={deleteSlide}
+                      disabled={slides.length === 1}
+                      className="flex-1 px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-500 text-sm disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shape Library Sidebar */}
+              {showShapeLibrary && (
+                <div className="w-80 bg-gray-800 shadow-lg flex flex-col border-l border-gray-600">
+                  <div className="p-4 border-b border-gray-600 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-white">Shape Library</h2>
+                    <button
+                      onClick={() => setShowShapeLibrary(false)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  {/* Category Tabs */}
+                  <div className="flex border-b border-gray-600">
+                    {Object.entries(shapeCategories).map(([key, category]) => (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedShapeCategory(key)}
+                        className={`
+                          flex-1 px-3 py-2 text-sm font-medium transition-colors
+                          ${selectedShapeCategory === key 
+                            ? 'bg-blue-600 text-white border-b-2 border-blue-400' 
+                            : 'text-gray-300 hover:bg-gray-700'}
+                        `}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Shapes Grid */}
+                  <div className="flex-1 overflow-y-auto p-4 shape-palette">
+                    <div className="grid grid-cols-2 gap-3">
+                      {shapeCategories[selectedShapeCategory].shapes.map(shape => (
+                        <button
+                          key={shape.id}
+                          onClick={() => addElement('shape', shape.component)}
+                          className="
+                            bg-gray-700 border border-gray-600 rounded-lg p-4 
+                            hover:border-blue-400 hover:bg-gray-600 transition-all
+                            shape-item
+                          "
+                        >
+                          <div className="w-full h-16 mb-2 flex items-center justify-center">
+                            {React.createElement(ShapeComponents[shape.component], { size: 50 })}
+                          </div>
+                          <p className="text-xs text-center font-medium text-gray-300">{shape.name}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Main Canvas Area */}
+              <div className="flex-1 flex flex-col">
+                {/* Top Toolbar */}
+                <div className="bg-gray-800 shadow-sm border-b border-gray-600 px-4 py-2">
+                  <div className="flex items-center gap-4">
+                    {/* File operations */}
+                    <div className="flex items-center gap-2 border-r border-gray-600 pr-4">
+                      <button
+                        onClick={savePresentation}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Save (Ctrl+S)"
+                      >
+                        💾
+                      </button>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Load"
+                      >
+                        📁
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".json"
+                        onChange={loadPresentation}
+                        style={{ display: 'none' }}
+                      />
+                    </div>
+
+                    {/* Edit operations */}
+                    <div className="flex items-center gap-2 border-r border-gray-600 pr-4">
+                      <button
+                        onClick={() => canUndo && setSlides(undo())}
+                        disabled={!canUndo}
+                        className="p-2 hover:bg-gray-700 rounded disabled:opacity-50 text-white"
+                        title="Undo (Ctrl+Z)"
+                      >
+                        ↶
+                      </button>
+                      <button
+                        onClick={() => canRedo && setSlides(redo())}
+                        disabled={!canRedo}
+                        className="p-2 hover:bg-gray-700 rounded disabled:opacity-50 text-white"
+                        title="Redo (Ctrl+Shift+Z)"
+                      >
+                        ↷
+                      </button>
+                    </div>
+                    
+                    {/* Tools */}
+                    <div className="flex items-center gap-2 border-r border-gray-600 pr-4">
+                      <button
+                        onClick={() => setTool('select')}
+                        className={`p-2 rounded text-white ${tool === 'select' ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+                        title="Select"
+                      >
+                        ↖
+                      </button>
+                      <button
+                        onClick={() => addElement('text')}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Text"
+                      >
+                        T
+                      </button>
+                      <button
+                        onClick={() => addElement('code')}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Code"
+                      >
+                        &lt;&gt;
+                      </button>
+                      <button
+                        onClick={() => addElement('chart')}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Chart"
+                      >
+                        📊
+                      </button>
+                      <button
+                        onClick={() => setShowShapeLibrary(!showShapeLibrary)}
+                        className={`p-2 rounded text-white ${showShapeLibrary ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+                        title="Shape Library"
+                      >
+                        🔷
+                      </button>
+                    </div>
+                    
+                    {/* View controls */}
+                    <div className="flex items-center gap-2 border-r border-gray-600 pr-4">
+                      <button
+                        onClick={() => setShowGrid(!showGrid)}
+                        className={`p-2 rounded text-white ${showGrid ? 'bg-blue-600' : 'hover:bg-gray-700'}`}
+                        title="Grid"
+                      >
+                        #
+                      </button>
+                      <button
+                        onClick={() => setZoom(Math.max(0.25, zoom - 0.25))}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Zoom Out"
+                      >
+                        🔍-
+                      </button>
+                      <span className="text-sm text-gray-400 min-w-[3rem] text-center">
+                        {Math.round(zoom * 100)}%
+                      </span>
+                      <button
+                        onClick={() => setZoom(Math.min(2, zoom + 0.25))}
+                        className="p-2 hover:bg-gray-700 rounded text-white"
+                        title="Zoom In"
+                      >
+                        🔍+
+                      </button>
+                    </div>
+                    
+                    {/* Themes */}
+                    <div className="flex items-center gap-2 border-r border-gray-600 pr-4">
+                      {Object.keys(themes).map(theme => (
+                        <button
+                          key={theme}
+                          onClick={() => setCurrentTheme(theme)}
+                          className={`px-3 py-1 rounded text-sm capitalize ${
+                            currentTheme === theme ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700'
+                          }`}
+                        >
+                          {theme}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Alignment controls */}
+                    {selectedElements.size > 1 && (
+                      <div className="flex items-center gap-1 border-r border-gray-600 pr-4">
+                        <span className="text-sm text-gray-400 mr-2">Align:</span>
+                        <button
+                          onClick={() => alignElements('left')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Left"
+                        >
+                          ⫷
+                        </button>
+                        <button
+                          onClick={() => alignElements('center-h')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Center Horizontal"
+                        >
+                          ⫼
+                        </button>
+                        <button
+                          onClick={() => alignElements('right')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Right"
+                        >
+                          ⫸
+                        </button>
+                        <div className="w-px h-6 bg-gray-600 mx-1" />
+                        <button
+                          onClick={() => alignElements('top')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Top"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => alignElements('center-v')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Center Vertical"
+                        >
+                          ↕
+                        </button>
+                        <button
+                          onClick={() => alignElements('bottom')}
+                          className="p-2 hover:bg-gray-700 rounded text-white"
+                          title="Align Bottom"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Selection controls */}
+                    {selectedElements.size > 0 && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={deleteSelectedElements}
+                          className="p-2 rounded hover:bg-gray-700 text-red-400"
+                          title="Delete Selected"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    
+                    <button
+                      onClick={() => setIsPresenting(true)}
+                      className="ml-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                    >
+                      ▶ Present
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Canvas */}
+                <div className="flex-1 overflow-auto bg-gray-850 p-8">
+                  <div
+                    className="mx-auto transition-transform"
+                    style={{
+                      transform: `scale(${zoom})`,
+                      transformOrigin: 'top center'
+                    }}
+                  >
+                    <div
+                      ref={canvasRef}
+                      className={`
+                        relative mx-auto w-full max-w-5xl h-[700px] 
+                        ${themes[currentTheme].bg} ${themes[currentTheme].text} 
+                        rounded-lg shadow-2xl overflow-hidden
+                      `}
+                      onMouseDown={handleCanvasMouseDown}
+                      style={{
+                        backgroundImage: showGrid ? `
+                          repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, transparent 1px, transparent 19px, rgba(255,255,255,0.03) 20px),
+                          repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, transparent 1px, transparent 19px, rgba(255,255,255,0.03) 20px)
+                        ` : 'none'
+                      }}
+                    >
+                      {slides[currentSlide].elements.map(renderElement)}
+                    </div>
+                  </div>
+                  
+                  {/* Status bar */}
+                  <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                    <div>Slide {currentSlide + 1} of {slides.length}</div>
+                    <div>{selectedElements.size} element{selectedElements.size !== 1 ? 's' : ''} selected</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // Use createRoot for React 18
+        const root = createRoot(document.getElementById('root'));
+        root.render(React.createElement(ProfessionalSlideDeckBuilder));
+    </script>
+</body>
+</html>
