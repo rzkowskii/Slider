@@ -1,6 +1,6 @@
 # Slider - Professional Presentation System
 
-A Marcus-grade presentation system built with React, TypeScript, and professional reliability features. Create stunning presentations with advanced flow diagrams, charts, and bulletproof data protection.
+A production-ready presentation system built with React, TypeScript, and enterprise reliability features. Create stunning presentations with advanced flow diagrams, charts, and bulletproof data protection.
 
 ## 🎯 Features
 
@@ -12,7 +12,7 @@ A Marcus-grade presentation system built with React, TypeScript, and professiona
 - **Shapes**: Geometric shapes with customization options
 - **Flow Diagrams**: NiFi-style flow diagrams with drag-and-drop nodes
 
-### **Marcus-Grade Reliability** 
+### **Enterprise Reliability** 
 - **Bulletproof Storage**: Atomic saves with corruption detection and recovery
 - **Auto-Save**: 30-second intervals with visual status indicators
 - **Error Boundaries**: Comprehensive crash protection at app, slide, and element levels
@@ -57,9 +57,9 @@ Create professional process flows with the integrated NiFi-style editor:
 - **Editing**: Full drag-and-drop interface with connection points
 - **Professional Output**: Publication-ready diagrams
 
-## 🛡️ The Marcus Standard
+## 🛡️ Reliability Standards
 
-This system was built with the Marcus Test™ - would you trust your $540,000 career interview with this code? Every feature includes:
+This system was built for mission-critical presentations. Every feature includes:
 
 - **Error Protection**: No crashes during critical moments
 - **Data Safety**: Multiple backup layers prevent data loss
@@ -112,7 +112,7 @@ The flow diagram system is fully extensible:
 
 This is a professional-grade system. All contributions must:
 - Include comprehensive error handling
-- Maintain Marcus-grade reliability standards
+- Maintain enterprise reliability standards
 - Include appropriate TypeScript types
 - Pass all stress tests
 
